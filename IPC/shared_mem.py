@@ -3,11 +3,11 @@ from .ipc_abstract import IPCAbstract
 
 
 class SHM(IPCAbstract):
-    def push(self, *args, **kwargs):
+    def __init__(self, ipc):
+        super().__init__(ipc)
+
+    def push(self, data):
         pass
 
-    def pull(self, *args, **kwargs):
-        pass
-
-    def __init__(self):
+    def pull(self):
         pass
