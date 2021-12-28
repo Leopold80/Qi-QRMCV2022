@@ -1,5 +1,7 @@
 # Qi-QRMCV2022
 QI-Q RoboMaster2022 CV Algorithm
+山东理工大学齐奇RoboMaster战队2022赛季自瞄算法
+（搭建中）
 
 ## 文件结构
 - detection -- 目标检测器  
