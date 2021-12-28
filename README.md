@@ -3,8 +3,9 @@ QI-Q RoboMaster2022 CV Algorithm
 
 ## 文件结构
 - detection -- 目标检测器  
-    - yolox.py      -- 生成矩形框的yolox目标检测onnx部署  
-    - yolox_poly.py -- 生成不规则四边形框的yolox_poly目标检测onnx部署  
+    - detection_base.py -- 目标检测器基类
+    - yolox.py          -- 生成矩形框的yolox目标检测onnx部署  
+    - yolox_poly.py     -- 生成不规则四边形框的yolox_poly目标检测onnx部署  
 
 
 - IPC -- 进程间通信模块  
