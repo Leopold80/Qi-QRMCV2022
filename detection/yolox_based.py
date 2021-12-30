@@ -8,9 +8,9 @@ from openvino.inference_engine import IECore
 import IPC
 
 
-class YOLOXNanoDetection(DetectionBase):
+class YOLOXDetection(DetectionBase):
     def __init__(self, ipc, model_bin, model_xml, dev):
-        super(YOLOXNanoDetection, self).__init__(ipc=ipc)
+        super(YOLOXDetection, self).__init__(ipc=ipc)
 
         model_bin = Path(model_bin)
         model_xml = Path(model_xml)
