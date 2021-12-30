@@ -10,7 +10,13 @@ import IPC
 
 
 class YOLOXDetection(DetectionBase):
-    def __init__(self, ipc, model_bin, model_xml, dev):
+    def __init__(
+            self,
+            ipc,
+            dev,
+            model_bin="detection/nn_network/yolox_nano_416/yolox_nano.bin",
+            model_xml="detection/nn_network/yolox_nano_416/yolox_nano.xml"
+    ):
         super(YOLOXDetection, self).__init__(ipc=ipc)
 
         model_bin = Path(model_bin)
@@ -26,6 +32,7 @@ class YOLOXDetection(DetectionBase):
 
         self.exec_net = ie.load_network(network=net, device_name=dev)
 
+    # 图像预处理
     def _preprocess(self, img, swap=(2, 0, 1)):
         if len(img.shape) == 3:
             padded_img = np.ones((self.h, self.w, 3), dtype=np.uint8) * 114
@@ -43,7 +50,7 @@ class YOLOXDetection(DetectionBase):
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
         return padded_img, r
 
-    def _infrence(self, img):
+    def _inference(self, img):
         image, ratio = self._preprocess(img)
         res = self.exec_net.infer(inputs={self.input_blob: image})
         res = res[self.out_blob]
@@ -95,4 +102,14 @@ class YOLOXDetection(DetectionBase):
         return outputs
 
     def run(self, *args, **kwargs):
-        pass
+        # 通过ipc从生产者线程读取图像
+        t, img = self._ipc.pull()
+        pred = self._inference(img)
+
+        for box in pred[0]:
+            x1, y1, x2, y2 = box.astype(np.int)
+            cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255), thickness=2)
+
+        cv2.imshow("video", img)
+        cv2.waitKey(2)
+

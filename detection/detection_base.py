@@ -20,7 +20,7 @@ class DetectionBase(mp.Process):
         return self._ipc.pull()
 
     # 推理
-    def _infrence(self, *args, **kwargs):
+    def _inference(self, *args, **kwargs):
         raise NotImplementedError()
 
     # 推理结果后处理
