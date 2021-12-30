@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from detection.utils import multiclass_nms
-from detection_base import DetectionBase
+from .detection_base import DetectionBase
 from pathlib import Path
 import multiprocessing as mp
 from openvino.inference_engine import IECore
@@ -24,7 +24,7 @@ class YOLOXDetection(DetectionBase):
         net.outputs[self.out_blob].precision = 'FP16'
         _, _, self.h, self.w = net.input_info[self.input_blob].input_data.shape
 
-        self.exec_net = ie.load_network(network=net, device=dev)
+        self.exec_net = ie.load_network(network=net, device_name=dev)
 
     def _preprocess(self, img, swap=(2, 0, 1)):
         if len(img.shape) == 3:
