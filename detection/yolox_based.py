@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+from detection.utils import multiclass_nms
 from detection_base import DetectionBase
 from pathlib import Path
 import multiprocessing as mp
@@ -57,7 +58,15 @@ class YOLOXDetection(DetectionBase):
         boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.
         boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
         boxes_xyxy /= ratio
-        # dets = multiclass_nms(boxes_xyxy, scores, nms_thr=0.45, score_thr=0.1)
+        dets = multiclass_nms(boxes_xyxy, scores, nms_thr=0.45, score_thr=0.1)
+        final_boxes = None
+        final_scores = None
+        final_cls_inds = None
+        if dets is not None:
+            final_boxes = dets[:, :4]
+            final_scores, final_cls_inds = dets[:, 4], dets[:, 5]
+
+        return final_boxes, final_scores, final_cls_inds
 
     def _postprocess(self, outputs, p6=False):
         grids = list()
