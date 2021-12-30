@@ -1,6 +1,8 @@
-from pathlib import Path
 import multiprocessing as mp
+from pathlib import Path
+
 from openvino.inference_engine import IECore
+
 import IPC
 
 
@@ -14,6 +16,9 @@ class DetectionBase(mp.Process):
         model_bin = Path(model_bin)
         # 模型结构文件路径
         model_xml = Path(model_xml)
+
+        assert model_bin.is_file(), "model bin not found"
+        assert model_xml.is_file(), "model xml not found"
 
         # 多进程通信模块
         self._ipc = ipc
