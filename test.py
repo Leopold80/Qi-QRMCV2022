@@ -5,6 +5,7 @@ import multiprocessing as mp
 import cv2
 from time import time
 from loguru import logger
+import detection
 
 
 class Consumer(mp.Process):
@@ -22,13 +23,9 @@ class Consumer(mp.Process):
 
 
 if __name__ == "__main__":
-    ipc = IPC.IPC()
-
-    p = videostream.Producer(src=0, ipc=ipc)
-    c = Consumer(ipc=ipc)
-
-    p.start()
-    c.start()
-
-    p.join()
-    c.join()
+    d = detection.DetectionBase(
+        model_bin="detection/nn_network/yolox_nano_416/yolox_nano.bin",
+        model_xml="detection/nn_network/yolox_nano_416/yolox_nano.xml",
+        dev="CPU",
+        ipc=None
+    )

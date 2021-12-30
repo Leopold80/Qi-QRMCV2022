@@ -49,3 +49,5 @@ class DetectionBase(mp.Process):
     # 线程运行核心函数
     def run(self, *args, **kwargs):
         raise NotImplementedError()
+
+
