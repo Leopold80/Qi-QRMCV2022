@@ -18,28 +18,21 @@ class YOLOXDetection(DetectionBase):
             model_xml="detection/nn_network/yolox_nano_416/yolox_nano.xml"
     ):
         super(YOLOXDetection, self).__init__(ipc=ipc)
+        self._init_flag = False
 
-        model_bin = Path(model_bin)
-        model_xml = Path(model_xml)
-
-        ie = IECore()
-        net = ie.read_network(model=model_xml, weights=model_bin)
-        self.input_blob = next(iter(net.input_info))
-        self.out_blob = next(iter(net.outputs))
-        net.input_info[self.input_blob].precision = 'FP32'
-        net.outputs[self.out_blob].precision = 'FP16'
-        _, _, self.h, self.w = net.input_info[self.input_blob].input_data.shape
-
-        self.exec_net = ie.load_network(network=net, device_name=dev)
+        self.model_bin = Path(model_bin)
+        self.model_xml = Path(model_xml)
+        self.dev = dev
 
     # 图像预处理
-    def _preprocess(self, img, swap=(2, 0, 1)):
+    def _preprocess(self, img, size, swap=(2, 0, 1)):
+        h, w = size
         if len(img.shape) == 3:
-            padded_img = np.ones((self.h, self.w, 3), dtype=np.uint8) * 114
+            padded_img = np.ones((h, w, 3), dtype=np.uint8) * 114
         else:
-            padded_img = np.ones((self.h, self.w), dtype=np.uint8) * 114
+            padded_img = np.ones((h, w), dtype=np.uint8) * 114
 
-        r = min(self.h / img.shape[0], self.w / img.shape[1])
+        r = min(h / img.shape[0], w / img.shape[1])
         resized_img = cv2.resize(
             img,
             (int(img.shape[1] * r), int(img.shape[0] * r)),
@@ -50,32 +43,11 @@ class YOLOXDetection(DetectionBase):
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
         return padded_img, r
 
-    def _inference(self, img):
-        image, ratio = self._preprocess(img)
-        res = self.exec_net.infer(inputs={self.input_blob: image})
-        res = res[self.out_blob]
-        predictions = self._postprocess(res, p6=False)[0]
+    def _inference(self, exec_net, out_blob, size, img):
+        pass
 
-        boxes = predictions[:, :4]
-        scores = predictions[:, 4, None] * predictions[:, 5:]
-
-        boxes_xyxy = np.ones_like(boxes)
-        boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.
-        boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.
-        boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.
-        boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
-        boxes_xyxy /= ratio
-        dets = multiclass_nms(boxes_xyxy, scores, nms_thr=0.45, score_thr=0.1)
-        final_boxes = None
-        final_scores = None
-        final_cls_inds = None
-        if dets is not None:
-            final_boxes = dets[:, :4]
-            final_scores, final_cls_inds = dets[:, 4], dets[:, 5]
-
-        return final_boxes, final_scores, final_cls_inds
-
-    def _postprocess(self, outputs, p6=False):
+    def _postprocess(self, outputs, size, p6=False):
+        h, w = size
         grids = list()
         expanded_strides = list()
 
@@ -84,8 +56,8 @@ class YOLOXDetection(DetectionBase):
         else:
             strides = [8, 16, 32, 64]
 
-        hsizes = [self.h // stride for stride in strides]
-        wsizes = [self.w // stride for stride in strides]
+        hsizes = [h // stride for stride in strides]
+        wsizes = [w // stride for stride in strides]
 
         for hsize, wsize, stride in zip(hsizes, wsizes, strides):
             xv, yv = np.meshgrid(np.arange(wsize), np.arange(hsize))
@@ -102,14 +74,51 @@ class YOLOXDetection(DetectionBase):
         return outputs
 
     def run(self, *args, **kwargs):
-        # 通过ipc从生产者线程读取图像
-        t, img = self._ipc.pull()
-        pred = self._inference(img)
+        # init infrence modules
+        ie = IECore()
+        net = ie.read_network(model=self.model_xml, weights=self.model_bin)
+        input_blob = next(iter(net.input_info))
+        out_blob = next(iter(net.outputs))
+        net.input_info[input_blob].precision = 'FP32'
+        net.outputs[out_blob].precision = 'FP16'
+        _, _, h, w = net.input_info[input_blob].input_data.shape
+        exec_net = ie.load_network(network=net, device_name=self.dev)
 
-        for box in pred[0]:
-            x1, y1, x2, y2 = box.astype(np.int)
-            cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255), thickness=2)
+        while True:
+            # 从生产者线程读取图像
+            t, img = self._ipc.pull()
+            # 图像预处理
+            image, ratio = self._preprocess(img, (h, w))
+            # 前向推理
+            res = exec_net.infer(inputs={input_blob: image})[out_blob]
+            # 后处理
+            predictions = self._postprocess(res, (h, w), p6=False)[0]
 
-        cv2.imshow("video", img)
-        cv2.waitKey(2)
+            # 预测框
+            boxes = predictions[:, :4]
+            # 预测框置信度
+            scores = predictions[:, 4, None] * predictions[:, 5:]
+            # 左上右下格式的预测框
+            boxes_xyxy = np.ones_like(boxes)
+            boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.
+            boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.
+            boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.
+            boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
+            boxes_xyxy /= ratio
+            # 非极大值抑制
+            dets = multiclass_nms(boxes_xyxy, scores, nms_thr=0.45, score_thr=0.1)
+            final_boxes = None
+            final_scores = None
+            final_cls_inds = None
+            if dets is not None:
+                final_boxes = dets[:, :4]
+                final_scores, final_cls_inds = dets[:, 4], dets[:, 5]
+
+            # 画图
+            for box in final_boxes:
+                x1, y1, x2, y2 = box.astype(np.int)
+                cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255),thickness=3)
+            cv2.imshow("video", img)
+            cv2.waitKey(2)
+
 
