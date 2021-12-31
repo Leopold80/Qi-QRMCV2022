@@ -1,14 +1,6 @@
-import numpy as np
-
 import IPC
-import videostream
-
-import multiprocessing as mp
-import cv2
-from time import time
-from loguru import logger
 import detection
-
+import videostream
 
 if __name__ == "__main__":
     ipc = IPC.Queue()
