@@ -1,12 +1,11 @@
+from pathlib import Path
+
 import cv2
 import numpy as np
+from openvino.inference_engine import IECore
 
 from detection.utils import multiclass_nms
 from .detection_base import DetectionBase
-from pathlib import Path
-import multiprocessing as mp
-from openvino.inference_engine import IECore
-import IPC
 
 
 class YOLOXDetection(DetectionBase):

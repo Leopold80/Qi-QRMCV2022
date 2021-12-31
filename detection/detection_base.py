@@ -1,7 +1,4 @@
 import multiprocessing as mp
-from pathlib import Path
-
-from openvino.inference_engine import IECore
 
 import IPC
 
