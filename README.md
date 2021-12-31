@@ -21,3 +21,8 @@ QI-Q RoboMaster2022 CV Algorithm
 - [dir]videostream -- 视频流  
     - camerastream.py  -- 实现了一个usb摄像头的生产者进程class  
 
+
+- [dir]serial_io -- 串口通信  
+    - data.py             -- 定义收发的数据结构  
+    - serial_io.py        -- 串口通信class
+
