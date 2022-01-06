@@ -1,10 +1,10 @@
 import IPC
 import detection
-import videostream
+import camera
 
 if __name__ == "__main__":
     ipc = IPC.Queue()
-    producer = videostream.Producer(ipc=ipc, src=0)
+    producer = camera.Producer(ipc=ipc, src=0)
     consumer = detection.YOLOXDetection(ipc=ipc, dev="CPU")
 
     producer.start()

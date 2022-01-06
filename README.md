@@ -18,8 +18,9 @@ QI-Q RoboMaster2022 CV Algorithm
     - shared_mem.py    -- 共享内存通信  
 
 
-- [dir]videostream -- 视频流  
+- [dir]camera -- 相机驱动相关  
     - camerastream.py  -- 实现了一个usb摄像头的生产者进程class  
+    - cam_para.py      -- 相机标定参数
 
 
 - [dir]serial_io -- 串口通信  
