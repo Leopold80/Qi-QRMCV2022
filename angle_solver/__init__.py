@@ -1,1 +1,1 @@
-# from .singlepoint import
+from .singlepoint import SinglePointSolver

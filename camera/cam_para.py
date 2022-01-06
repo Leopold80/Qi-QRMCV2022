@@ -3,7 +3,7 @@ import numpy as np
 
 
 class CamPara:
-    def __init__(self, para_path="uvc_camera.yml"):
+    def __init__(self, para_path="camera/uvc_camera.yml"):
         with open(para_path, mode='r') as para_f:
             para = yaml.load(para_f)
 
@@ -24,4 +24,20 @@ class CamPara:
     @property
     def dist_mat(self):
         return self._dist_mat
+
+    @property
+    def fx(self):
+        return self._cam_mat[0, 0]
+
+    @property
+    def fy(self):
+        return self._cam_mat[1, 1]
+
+    @property
+    def cx(self):
+        return self._cam_mat[0, 2]
+
+    @property
+    def cy(self):
+        return self._cam_mat[1, 2]
 
