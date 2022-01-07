@@ -125,11 +125,8 @@ class YOLOXDetection(DetectionBase):
                 final_boxes = dets[:, :4]
                 final_scores, final_cls_inds = dets[:, 4], dets[:, 5]
 
-            # # 画图
-            # for box in final_boxes:
-            #     x1, y1, x2, y2 = box.astype(np.int)
-            #     cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255),thickness=3)
-            # cv2.imshow("video", img)
-            # cv2.waitKey(2)
+            # final_boxes = np.ascontiguousarray(final_boxes)
+            # final_scores = np.ascontiguousarray(final_scores)
+            # final_cls_inds = np.ascontiguousarray(final_cls_inds)
 
             self._callback_fn(img, final_boxes, final_scores, final_cls_inds)
