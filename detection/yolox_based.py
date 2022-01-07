@@ -10,6 +10,8 @@ from .detection_base import DetectionBase
 
 def drawbox(img, boxes, conf, classes):
     # 画图
+    if boxes is None:
+        return
     for box in boxes:
         x1, y1, x2, y2 = box.astype(np.int)
         cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255), thickness=3)
