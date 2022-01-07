@@ -44,7 +44,7 @@ class DetectionPostProc:
 
 
 if __name__ == "__main__":
-    # TODO: 该写串口了 查一下python二进制串口
+    # TODO: 该写串口了 查一下python二进制串口通信
     ipc = IPC.Queue()
     producer = camera.Producer(ipc=ipc, src=0)
     consumer = detection.YOLOXDetection(ipc=ipc, dev="CPU", callback_fn=DetectionPostProc())
