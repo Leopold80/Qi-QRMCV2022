@@ -8,15 +8,25 @@ from detection.utils import multiclass_nms
 from .detection_base import DetectionBase
 
 
+def drawbox(img, boxes, conf, classes):
+    # 画图
+    for box in boxes:
+        x1, y1, x2, y2 = box.astype(np.int)
+        cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255), thickness=3)
+    cv2.imshow("video", img)
+    cv2.waitKey(2)
+
+
 class YOLOXDetection(DetectionBase):
     def __init__(
             self,
             ipc,
             dev,
+            callback_fn=drawbox,
             model_bin="detection/nn_network/yolox_nano_416/yolox_nano.bin",
             model_xml="detection/nn_network/yolox_nano_416/yolox_nano.xml"
     ):
-        super(YOLOXDetection, self).__init__(ipc=ipc)
+        super(YOLOXDetection, self).__init__(ipc=ipc, callback_fn=callback_fn)
         self._init_flag = False
 
         self.model_bin = Path(model_bin)
@@ -113,11 +123,11 @@ class YOLOXDetection(DetectionBase):
                 final_boxes = dets[:, :4]
                 final_scores, final_cls_inds = dets[:, 4], dets[:, 5]
 
-            # 画图
-            for box in final_boxes:
-                x1, y1, x2, y2 = box.astype(np.int)
-                cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255),thickness=3)
-            cv2.imshow("video", img)
-            cv2.waitKey(2)
+            # # 画图
+            # for box in final_boxes:
+            #     x1, y1, x2, y2 = box.astype(np.int)
+            #     cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255),thickness=3)
+            # cv2.imshow("video", img)
+            # cv2.waitKey(2)
 
-
+            self._callback_fn(img, final_boxes, final_scores, final_cls_inds)
