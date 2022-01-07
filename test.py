@@ -53,4 +53,4 @@ if __name__ == "__main__":
     consumer.start()
 
     producer.join()
-    consumer.start()
+    consumer.join()
