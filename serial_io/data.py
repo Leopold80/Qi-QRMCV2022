@@ -1,11 +1,9 @@
 import array
 import collections
-import itertools
 
 
 class DataOutput:
     def __init__(self):
-        self._u8datas = []  # u8
         self._datas = collections.OrderedDict({"dy": 0, "dp": 0, "t": 0})
 
     def load_data(self, dy, dp, t):
@@ -19,8 +17,14 @@ class DataOutput:
             res.append((data >> 8 * (3 - i)) & 0xff)
         return res
 
-    def _encode(self):
+    def encode(self):
         encoded = [self._encode_it(x) for x in self._datas.values()]
-        self._u8datas.clear()
+        u8datas = array.array("B")
         for e in encoded:
-            self._u8datas.extend(e)
+            u8datas.extend(e)
+        return u8datas
+
+    def _decode(self):
+        dy = 0
+        dp = 0
+        t = 0

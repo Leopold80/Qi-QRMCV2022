@@ -1,16 +1,16 @@
 import serial
 
 
-def init_dict():
-    return {
-        "baudrate": None,
-
-    }
-
-
 class SerialIO:
     def __init__(self, dev):
-        self._io = serial.Serial()
+        self._io = serial.Serial(
+            port=dev,
+            parity=serial.PARITY_EVEN,
+        )
 
+    def send(self, data):
+        self._io.write(data)
+        self._io.flush()
 
-s = SerialIO(114514)
+    def recv(self):
+        pass
