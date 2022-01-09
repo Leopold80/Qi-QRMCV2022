@@ -24,7 +24,8 @@ class DataOutput:
             u8datas.extend(e)
         return u8datas
 
-    def _decode(self):
-        dy = 0
-        dp = 0
-        t = 0
+    def decode(self, u8datas):
+        dy = (u8datas[0] << 8 * 3) | (u8datas[1] << 8 * 2) | (u8datas[2] << 8 * 1) | (u8datas[3] << 8*0)
+        dp = (u8datas[4] << 8 * 3) | (u8datas[5] << 8 * 2) | (u8datas[6] << 8 * 1) | (u8datas[7] << 8*0)
+        t = (u8datas[8] << 8 * 3) | (u8datas[9] << 8 * 2) | (u8datas[10] << 8 * 1) | (u8datas[11] << 8*0)
+        return float(dy) / 10000., float(dp) / 10000., float(t) / 10000.
