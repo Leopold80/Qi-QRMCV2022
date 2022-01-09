@@ -15,6 +15,14 @@ class DetectionPostProc:
         """目前测试先试着跟踪人"""
         if boxes is None:
             return
+
+        """
+        装甲板筛选：1.目标置信度
+                  2.目标面积
+                  3.目标凸度（参考东南大学开源）
+                  4.和上一帧目标的欧氏距离或曼哈顿距离
+        """
+
         # 只保留人的识别结果
         keep_idx = (classes == 0)
         boxes = boxes[keep_idx]
