@@ -12,8 +12,22 @@ class DetectionPostProc:
         self._angle_solver = angle_solver.SinglePointSolver()
 
     def __call__(self, img, boxes, conf, classes):
+        """目前测试先试着跟踪人"""
         if boxes is None:
             return
+        # 只保留人的识别结果
+        keep_idx = (classes == 0)
+        boxes = boxes[keep_idx]
+        conf = conf[keep_idx]
+        classes = classes[keep_idx]
+
+        # 找出最大的置信度
+        confmax_idx = np.argmax(conf)
+
+        boxes = np.expand_dims(boxes[confmax_idx], axis=0)
+        conf = np.expand_dims(conf[confmax_idx], axis=0)
+        classes = np.expand_dims(classes[confmax_idx], axis=0)
+
         # 求出每个矩形框的中心点
         boxes_center = np.zeros((boxes.shape[0], 2), dtype=boxes.dtype)
         boxes_center[:, 0] = .5 * (boxes[:, 0] + boxes[:, 2])  # x

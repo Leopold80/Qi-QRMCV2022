@@ -22,7 +22,7 @@ class SinglePointSolver(SolverBase):
         rx = (undis_points[:, 0] - self.cam_para.cx) / self.cam_para.fx
         ry = (undis_points[:, 1] - self.cam_para.cy) / self.cam_para.fy
 
-        return np.arctan(rx) / np.pi * 180., np.arctan(ry) / np.pi * 180., undis_points
+        return (np.arctan(rx) / np.pi * 180.) + 180., (np.arctan(ry) / np.pi * 180.) + 180., undis_points
 
     def undistort_image(self, fr):
         undistort_fr = cv2.undistort(fr, self.cam_para.cam_mat, self.cam_para.dist_mat)
