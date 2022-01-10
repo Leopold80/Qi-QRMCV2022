@@ -41,7 +41,7 @@ class DetectionPostProc:
             boxes_center = np.zeros((boxes.shape[0], 2), dtype=boxes.dtype)
             boxes_center[:, 0] = .5 * (boxes[:, 0] + boxes[:, 2])  # x
             boxes_center[:, 1] = .5 * (boxes[:, 1] + boxes[:, 3])  # y
-            # 每个点的x角度，每个点的y角度，每个点去除畸变后的结果
+            # 点的x角度，点的y角度，点去除畸变后的结果
             ax, ay, undis_pnt = self._angle_solver.get_angle(boxes_center)
         else:
             boxes_center = np.zeros((0, 2))
