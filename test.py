@@ -30,18 +30,24 @@ class DetectionPostProc:
         classes = classes[keep_idx]
 
         # 找出最大的置信度
-        confmax_idx = np.argmax(conf)
+        confmax_idx = np.argmax(conf) if len(conf) != 0 else None
 
-        boxes = np.expand_dims(boxes[confmax_idx], axis=0)
-        conf = np.expand_dims(conf[confmax_idx], axis=0)
-        classes = np.expand_dims(classes[confmax_idx], axis=0)
+        if confmax_idx is not None:
+            boxes = np.expand_dims(boxes[confmax_idx], axis=0)
+            conf = np.expand_dims(conf[confmax_idx], axis=0)
+            classes = np.expand_dims(classes[confmax_idx], axis=0)
 
-        # 求出每个矩形框的中心点
-        boxes_center = np.zeros((boxes.shape[0], 2), dtype=boxes.dtype)
-        boxes_center[:, 0] = .5 * (boxes[:, 0] + boxes[:, 2])  # x
-        boxes_center[:, 1] = .5 * (boxes[:, 1] + boxes[:, 3])  # y
-        # 每个点的x角度，每个点的y角度，每个点去除畸变后的结果
-        ax, ay, undis_pnt = self._angle_solver.get_angle(boxes_center)
+            # 求出矩形框的中心点
+            boxes_center = np.zeros((boxes.shape[0], 2), dtype=boxes.dtype)
+            boxes_center[:, 0] = .5 * (boxes[:, 0] + boxes[:, 2])  # x
+            boxes_center[:, 1] = .5 * (boxes[:, 1] + boxes[:, 3])  # y
+            # 每个点的x角度，每个点的y角度，每个点去除畸变后的结果
+            ax, ay, undis_pnt = self._angle_solver.get_angle(boxes_center)
+        else:
+            boxes_center = np.zeros((0, 2))
+            ax = np.zeros((0,))
+            ay = np.zeros((0,))
+            undis_pnt = np.zeros((0, 2))
 
         # 画图
         for box, cbox, undis_cbox, anglex, angley in zip(boxes, boxes_center, undis_pnt, ax, ay):
