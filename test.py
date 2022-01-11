@@ -13,7 +13,7 @@ class DetectionPostProc:
     def __init__(self):
         self._angle_solver = angle_solver.SinglePointSolver()
         self._data = DataOutput()
-        # self._io = SerialIO(dev="USBtty0")
+        # self._io = SerialIO(dev="ttyUSB0")
 
     def __call__(self, img, boxes, conf, classes):
         """目前测试先试着跟踪人"""
