@@ -1,15 +1,19 @@
 import cv2
 import numpy as np
+from loguru import logger
 
 import IPC
 import detection
 import camera
 import angle_solver
+from serial_io import DataOutput, SerialIO
 
 
 class DetectionPostProc:
     def __init__(self):
         self._angle_solver = angle_solver.SinglePointSolver()
+        self._data = DataOutput()
+        # self._io = SerialIO(dev="USBtty0")
 
     def __call__(self, img, boxes, conf, classes):
         """目前测试先试着跟踪人"""
@@ -48,6 +52,19 @@ class DetectionPostProc:
             ax = np.zeros((0,))
             ay = np.zeros((0,))
             undis_pnt = np.zeros((0, 2))
+
+        # 加载数据并进行编码
+        self._data.load_data(ax[0], ay[0], 0., True) if confmax_idx is not None \
+            else self._data.load_data(0., 0., 0., False)
+        msg = self._data.encode()
+
+        # logger.debug(msg)
+        # logger.debug(msg.tostring())
+        # prev = self._data.decode(msg)
+        # logger.debug(prev)
+
+        # 发送串口数据
+        # self._io.send(msg.tostring())
 
         # 画图
         for box, cbox, undis_cbox, anglex, angley in zip(boxes, boxes_center, undis_pnt, ax, ay):
