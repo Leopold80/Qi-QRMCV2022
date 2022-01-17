@@ -5,6 +5,7 @@ import numpy as np
 from openvino.inference_engine import IECore
 
 from detection.utils import multiclass_nms
+from serial_io import SerialIO
 from .detection_base import DetectionBase
 
 
@@ -24,16 +25,17 @@ class YOLOXDetection(DetectionBase):
             self,
             ipc,
             dev,
+            serial_dev="/dev/ttyUSB0",
             callback_fn=drawbox,
             model_bin="detection/nn_network/yolox_nano_416/yolox_nano.bin",
             model_xml="detection/nn_network/yolox_nano_416/yolox_nano.xml"
     ):
         super(YOLOXDetection, self).__init__(ipc=ipc, callback_fn=callback_fn)
-        self._init_flag = False
 
         self.model_bin = Path(model_bin)
         self.model_xml = Path(model_xml)
         self.dev = dev
+        self.serial_dev = serial_dev
 
     # 图像预处理
     def _preprocess(self, img, size, swap=(2, 0, 1)):
@@ -95,6 +97,9 @@ class YOLOXDetection(DetectionBase):
         _, _, h, w = net.input_info[input_blob].input_data.shape
         exec_net = ie.load_network(network=net, device_name=self.dev)
 
+        # init serial io
+        _io = SerialIO(dev=self.serial_dev)
+
         while True:
             # 从生产者线程读取图像
             t, img = self._ipc.pull()
@@ -129,4 +134,6 @@ class YOLOXDetection(DetectionBase):
             # final_scores = np.ascontiguousarray(final_scores)
             # final_cls_inds = np.ascontiguousarray(final_cls_inds)
 
-            self._callback_fn(img, final_boxes, final_scores, final_cls_inds)
+            msg = self._callback_fn(img, final_boxes, final_scores, final_cls_inds)
+            if msg is not None:
+                _io.send(msg)
