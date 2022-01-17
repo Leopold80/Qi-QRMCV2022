@@ -17,7 +17,11 @@ class DetectionPostProc:
     def __call__(self, img, boxes, conf, classes):
         """目前测试先试着跟踪人"""
         if boxes is None:
-            return
+            cv2.imshow("video", img)
+            self._data.load_data(0., 0., False)
+            msg = self._data.encode().tostring()
+            cv2.waitKey(1)
+            return msg
 
         """
         装甲板筛选：1.目标置信度

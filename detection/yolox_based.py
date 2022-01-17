@@ -12,6 +12,8 @@ from .detection_base import DetectionBase
 def drawbox(img, boxes, conf, classes):
     # 画图
     if boxes is None:
+        cv2.imshow("video", img)
+        cv2.waitKey(2)
         return
     for box in boxes:
         x1, y1, x2, y2 = box.astype(np.int)
