@@ -2,14 +2,14 @@ import multiprocessing as mp
 import time
 
 import cv2
+from .camera_base import CameraBase
 
 import IPC
 
 
-class CameraStream(mp.Process):
+class UVCCamera(CameraBase):
     def __init__(self, ipc: IPC.IPCAbstract, src):
-        super(CameraStream, self).__init__()
-        self._ipc = ipc
+        super(UVCCamera, self).__init__(ipc)
         self.src = src
 
     def set_camera(self, **camera_args):

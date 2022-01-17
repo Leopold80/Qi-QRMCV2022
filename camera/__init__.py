@@ -1,4 +1,5 @@
-from .camerastream import CameraStream
+from .camerastream import UVCCamera
 from .cam_para import CamPara
+from .hk_camera import HKCam
 
-Producer = CameraStream
+Producer = UVCCamera

@@ -98,7 +98,7 @@ class YOLOXDetection(DetectionBase):
         exec_net = ie.load_network(network=net, device_name=self.dev)
 
         # init serial io
-        _io = SerialIO(dev=self.serial_dev)
+        # _io = SerialIO(dev=self.serial_dev)
 
         while True:
             # 从生产者线程读取图像
@@ -135,5 +135,5 @@ class YOLOXDetection(DetectionBase):
             # final_cls_inds = np.ascontiguousarray(final_cls_inds)
 
             msg = self._callback_fn(img, final_boxes, final_scores, final_cls_inds)
-            if msg is not None:
-                _io.send(msg)
+            # if msg is not None:
+            #     _io.send(msg)
