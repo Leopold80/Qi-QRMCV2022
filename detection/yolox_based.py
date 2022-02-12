@@ -28,24 +28,18 @@ class YOLOXDetection(DetectionBase):
             dev,
             serial_dev="/dev/ttyUSB0",
             callback_fn=drawbox,
-            model_bin="detection/nn_network/yolox_nano_416/yolox_nano.bin",
-            model_xml="detection/nn_network/yolox_nano_416/yolox_nano.xml"
+            model_dir="detection/nn_network/yolox_nano_416/yolox_nano.xml"
     ):
         super(YOLOXDetection, self).__init__(ipc=ipc, callback_fn=callback_fn)
 
-        self.model_bin = Path(model_bin)
-        self.model_xml = Path(model_xml)
+        self.model = Path(model_dir)
         self.dev = dev
         self.serial_dev = serial_dev
 
     # 图像预处理
     def _preprocess(self, img, size, swap=(2, 0, 1)):
         h, w = size
-        if len(img.shape) == 3:
-            padded_img = np.ones((h, w, 3), dtype=np.uint8) * 114
-        else:
-            padded_img = np.ones((h, w), dtype=np.uint8) * 114
-
+        padded_img = np.ones((h, w, 3), dtype=np.uint8) * 114
         r = min(h / img.shape[0], w / img.shape[1])
         resized_img = cv2.resize(
             img,
@@ -90,7 +84,7 @@ class YOLOXDetection(DetectionBase):
     def run(self, *args, **kwargs):
         # init infrence modules
         ie = IECore()
-        net = ie.read_network(model=self.model_xml, weights=self.model_bin)
+        net = ie.read_network(self.model)
         input_blob = next(iter(net.input_info))
         out_blob = next(iter(net.outputs))
         net.input_info[input_blob].precision = 'FP32'
@@ -116,25 +110,16 @@ class YOLOXDetection(DetectionBase):
             # 预测框置信度
             scores = predictions[:, 4, None] * predictions[:, 5:]
             # 左上右下格式的预测框
-            boxes_xyxy = np.ones_like(boxes)
+            boxes_xyxy = np.zeros_like(boxes)
             boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.
             boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.
             boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.
             boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
             boxes_xyxy /= ratio
-            # 非极大值抑制
+            # 非极大值抑制 -> x1, y1, x2, y2, conf, cls
+            # 若有目标则返回相应的张量 若无目标则返回none
             dets = multiclass_nms(boxes_xyxy, scores, nms_thr=0.45, score_thr=0.1)
-            final_boxes = None
-            final_scores = None
-            final_cls_inds = None
-            if dets is not None:
-                final_boxes = dets[:, :4]
-                final_scores, final_cls_inds = dets[:, 4], dets[:, 5]
 
-            # final_boxes = np.ascontiguousarray(final_boxes)
-            # final_scores = np.ascontiguousarray(final_scores)
-            # final_cls_inds = np.ascontiguousarray(final_cls_inds)
-
-            msg = self._callback_fn(img, final_boxes, final_scores, final_cls_inds)
+            msg = self._callback_fn(img, dets)
             # if msg is not None:
             #     _io.send(msg)

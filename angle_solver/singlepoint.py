@@ -1,6 +1,5 @@
-import numpy as np
-
 import cv2
+import numpy as np
 
 from camera import CamPara
 from .solver_base import SolverBase

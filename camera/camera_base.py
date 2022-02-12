@@ -1,13 +1,8 @@
 import multiprocessing as mp
-import time
-
-import cv2
-
-import IPC
 
 
 class CameraBase(mp.Process):
-    def __init__(self, ipc: IPC.IPCAbstract):
+    def __init__(self, ipc):
         super(CameraBase, self).__init__()
         self._ipc = ipc
 

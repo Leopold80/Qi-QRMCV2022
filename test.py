@@ -1,11 +1,10 @@
 import cv2
 import numpy as np
-from loguru import logger
 
 import IPC
-import detection
-import camera
 import angle_solver
+import camera
+import detection
 from serial_io import DataOutput
 
 
@@ -87,7 +86,7 @@ class DetectionPostProc:
 
 if __name__ == "__main__":
     ipc = IPC.Queue()
-    producer = camera.cameras["UVC"](ipc=ipc)
+    producer = camera.cameras["UVC"](ipc=ipc, src=0)
     consumer = detection.YOLOXDetection(ipc=ipc, dev="CPU", serial_dev="/dev/ttyUSB0", callback_fn=DetectionPostProc())
 
     producer.start()

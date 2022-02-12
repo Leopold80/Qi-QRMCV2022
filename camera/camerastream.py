@@ -1,14 +1,12 @@
-import multiprocessing as mp
 import time
 
 import cv2
-from .camera_base import CameraBase
 
-import IPC
+from .camera_base import CameraBase
 
 
 class UVCCamera(CameraBase):
-    def __init__(self, ipc: IPC.IPCAbstract, src):
+    def __init__(self, ipc, src):
         super(UVCCamera, self).__init__(ipc)
         self.src = src
 

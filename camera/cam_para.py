@@ -1,11 +1,12 @@
-import yaml
+from pathlib import Path
+
 import numpy as np
+import yaml
 
 
 class CamPara:
-    def __init__(self, para_path="camera/uvc_camera.yml"):
-        with open(para_path, mode='r') as para_f:
-            para = yaml.load(para_f)
+    def __init__(self, para_path="camera/uvc_camera.yaml"):
+        para = yaml.safe_load(Path(para_path).open("r"))
 
         _cam_mat = para['camera_matrix']['data']
         rows = para['camera_matrix']['rows']

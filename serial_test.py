@@ -1,8 +1,8 @@
-import array
+from time import time
+
+from loguru import logger
 
 from serial_io import DataOutput, SerialIO
-from time import time
-from loguru import logger
 
 if __name__ == "__main__":
     data = DataOutput()

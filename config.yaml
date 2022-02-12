@@ -1,0 +1,44 @@
+# 进程通信类型
+ipc:
+  [
+      Queue,
+      {
+
+      }
+  ]
+
+# 生产者 图像源
+producer:
+  [
+      # 相机类型
+      UVCCamera,
+      {
+        # 相机源
+        src: 1
+      }
+  ]
+
+# 消费者进程 推理
+consumer:
+  [
+    # 推理框架
+    YOLOXDetection,
+    {
+      # 推理设备
+      dev: "CPU",
+      # 串口
+      serial_dev: "/dev/ttyUSB0",
+      # 模型配置文件
+      model_dir: "./detection/nn_network/yolox.onnx"
+    }
+  ]
+
+# 回调
+callback:
+  [
+      # 回调模型
+      SinglePointDetectCall,
+      {
+
+      }
+  ]

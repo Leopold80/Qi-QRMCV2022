@@ -1,4 +1,3 @@
-import multiprocessing as mp
 from .ipc_abstract import IPCAbstract
 
 
