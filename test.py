@@ -87,7 +87,7 @@ class DetectionPostProc:
 
 if __name__ == "__main__":
     ipc = IPC.Queue()
-    producer = camera.Producer(ipc=ipc, src=0)
+    producer = camera.cameras["UVC"](ipc=ipc)
     consumer = detection.YOLOXDetection(ipc=ipc, dev="CPU", serial_dev="/dev/ttyUSB0", callback_fn=DetectionPostProc())
 
     producer.start()

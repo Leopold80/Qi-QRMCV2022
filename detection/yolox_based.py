@@ -5,7 +5,6 @@ import numpy as np
 from openvino.inference_engine import IECore
 
 from detection.utils import multiclass_nms
-from serial_io import SerialIO
 from .detection_base import DetectionBase
 
 
