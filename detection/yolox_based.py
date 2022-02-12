@@ -5,6 +5,7 @@ import numpy as np
 from openvino.inference_engine import IECore
 
 from detection.utils import multiclass_nms
+from serial_io import SerialIO
 from .detection_base import DetectionBase
 
 
@@ -93,7 +94,7 @@ class YOLOXDetection(DetectionBase):
         exec_net = ie.load_network(network=net, device_name=self.dev)
 
         # init serial io
-        # _io = SerialIO(dev=self.serial_dev)
+        _io = SerialIO(dev=self.serial_dev)
 
         while True:
             # 从生产者线程读取图像
@@ -121,5 +122,4 @@ class YOLOXDetection(DetectionBase):
             dets = multiclass_nms(boxes_xyxy, scores, nms_thr=0.45, score_thr=0.1)
 
             msg = self._callback_fn(img, dets)
-            # if msg is not None:
-            #     _io.send(msg)
+            _io.send(msg)
