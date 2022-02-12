@@ -30,7 +30,7 @@ class SinglePointDetectCall:
             c[0] = .5 * (armor[0] + armor[2])
             c[1] = .5 * (armor[1] + armor[3])
             # 角度解算
-            ax, ay, _ = self._anglesolver.get_angle(c[np.newaxis, :])
+            ax, ay, _ = self._anglesolver.get_angle(c)
             # 数据编码
             self._iodata.load_data(ax[0], ay[0], 0., True)
             msg = self._iodata.encode().tostring()
@@ -39,8 +39,8 @@ class SinglePointDetectCall:
         if dets is not None:
             x1, y1, x2, y2 = armor[:4].astype(np.int32)
             cv2.rectangle(img, (x1, y1), (x2, y2), color=(255, 0, 255), thickness=3)
-            cv2.putText(img, "ax:{}, ay:{}".format(ax, ay),
-                        (x1, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255))
+            cv2.putText(img, "ax:{:.2f}, ay:{:.2f}".format(ax[0], ay[0]),
+                        (x1, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), thickness=2)
         cv2.imshow("vis", img)
         cv2.waitKey(1)
         return msg
